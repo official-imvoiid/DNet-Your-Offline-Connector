@@ -15,12 +15,14 @@ import 'core/pc_camera.dart';
 import 'data/app_state.dart';
 import 'data/live_directory.dart';
 import 'data/live_spaces.dart';
+import 'data/notices.dart';
 import 'data/store.dart';
 import 'data/terms_record.dart';
 import 'design/tokens.dart';
 import 'l10n/l10n.dart';
 import 'radio/link_pump.dart';
 import 'radio/lora/radio_settings.dart';
+import 'shell/notice_open.dart';
 
 /// Opens the app on this device: the Rust core in the app's private
 /// folder, and the device's own radio. Everything the app then shows is
@@ -53,7 +55,7 @@ Future<AppState> openDeviceApp() async {
   // A PC scans with its webcam, if it has one the radio library can reach.
   final pcCamera = PcCamera.open();
   final pcCanScan = pcCamera != null && await PcCamera.count() > 0;
-  return AppState(
+  final state = AppState(
     store: store,
     directory: directory,
     spaces: LiveSpaces(bridge, pump),
@@ -92,6 +94,15 @@ Future<AppState> openDeviceApp() async {
     voiceDir: '$dataDir${Platform.pathSeparator}voice',
     isPc: Platform.isWindows,
   );
+  // The device's own notifications while the app is not in front, and
+  // whether it goes on in the background. It lives as long as the app.
+  NoticeWatcher(
+    state,
+    DevicePlatform.notices(),
+    lookupAppLocalizations(const Locale('en')),
+    onOpen: openNotice,
+  ).start();
+  return state;
 }
 
 /// Starts the app. First the Terms of Use: until the current version has
