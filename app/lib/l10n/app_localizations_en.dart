@@ -4733,4 +4733,107 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get screenShareNoticeText =>
       'Everyone in the call can see it. Open DNet to stop.';
+
+  @override
+  String get noticeChannelMessages => 'Messages';
+
+  @override
+  String get noticeChannelCalls => 'Calls';
+
+  @override
+  String noticeNewMessages(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new messages',
+      one: 'New message',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noticeRequestTitle => 'Chat request';
+
+  @override
+  String noticeRequestText(String name) {
+    return '$name wants to chat with you';
+  }
+
+  @override
+  String get noticeRequestHidden => 'Someone wants to chat with you';
+
+  @override
+  String noticeMention(String channel) {
+    return 'You were mentioned in #$channel';
+  }
+
+  @override
+  String get noticeMentionHidden => 'You were mentioned in a space';
+
+  @override
+  String get noticeCallTitle => 'Incoming call';
+
+  @override
+  String noticeCallText(String name) {
+    return '$name is calling';
+  }
+
+  @override
+  String get noticeCallHidden => 'Someone is calling';
+
+  @override
+  String get trayOpen => 'Open DNet';
+
+  @override
+  String get trayQuit => 'Quit DNet';
+
+  @override
+  String get trayStillRunningTitle => 'DNet is still running';
+
+  @override
+  String get trayStillRunningText =>
+      'It keeps finding people and taking messages. Quit from the tray icon.';
+
+  @override
+  String get notificationsHeading => 'Notifications and background';
+
+  @override
+  String get notificationsSwitch => 'Notifications';
+
+  @override
+  String notificationsDetail(String device) {
+    String _temp0 = intl.Intl.selectLogic(device, {
+      'pc': 'Messages, chat requests, mentions and calls while DNet\'s window is not in front.',
+      'other': 'Messages, chat requests, mentions and calls while DNet is not on screen.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get notifyTextSwitch => 'Show what was said';
+
+  @override
+  String get notifyTextDetail =>
+      'Off: only who it is from. With an app lock, a notification never shows who or what.';
+
+  @override
+  String get backgroundSwitch => 'Keep running in the background';
+
+  @override
+  String backgroundDetail(String device) {
+    String _temp0 = intl.Intl.selectLogic(device, {
+      'pc': 'Closing the window keeps DNet in the tray, finding people and taking messages. Quit from the tray icon.',
+      'other': 'DNet goes on finding people and taking messages after you leave it, with a notice that says so.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String notificationsBlocked(String device) {
+    String _temp0 = intl.Intl.selectLogic(device, {
+      'pc': 'Windows has notifications for DNet turned off. Turn them on in Windows Settings.',
+      'other': 'Notifications for DNet are turned off. Turn them on in the phone\'s settings.',
+    });
+    return '$_temp0';
+  }
 }
