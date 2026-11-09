@@ -70,6 +70,14 @@ it is for, and everything you keep is encrypted on your own device.
   one of your contacts by look alone.
 
 **Made for both platforms**
+- **Notifications:** messages, chat requests, mentions and incoming calls
+  arrive as the device's own notifications while DNet is not in front. Tap
+  one to open that chat. Hide what was said, or, with an app lock, who it
+  is from too.
+- **Always on:** DNet keeps finding people and taking messages in the
+  background: after you leave it on Android, with a notice saying so, and
+  in the system tray when you close the window on Windows. Switch it off
+  and closing DNet closes it.
 - On Windows the app fills the window: a resizable list beside the open
   chat, members beside a channel on wide screens, hover tips, right-click
   menus, and keyboard shortcuts (Ctrl+K find a chat, Ctrl+N new chat,
