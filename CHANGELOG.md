@@ -6,6 +6,21 @@ follow the app's `pubspec.yaml`.
 ## 0.3.0 — 2026-11-08
 
 ### Added
+- **Notifications.** Messages, chat requests, mentions in spaces and
+  incoming calls show as the device's own notifications while DNet is not
+  in front, one per chat, replaced by the next and taken away once read.
+  Tapping one opens that chat, the requests or the channel. "Show what was
+  said" can be switched off, and with an app lock a notification never
+  says who or what. On a phone's lock screen what they say stays hidden.
+  Android 13 and later ask once. On Windows they come from DNet's tray
+  icon.
+- **Keeps running in the background.** On Android, DNet goes on finding
+  people and taking messages after you leave it, press Back or swipe it
+  away, with a notice saying so; the app and its radios now live for the
+  whole run, not just while the screen is open. On Windows, closing the
+  window keeps DNet in the tray (Open and Quit on its icon). Both under
+  Privacy and security → Notifications and background; switched off,
+  closing DNet closes it as before.
 - **Keyboard shortcuts.** Ctrl+K finds a chat, Ctrl+N starts a new chat,
   Ctrl+1 to Ctrl+4 switch tabs, Ctrl+F searches the open channel, and Esc
   closes a sheet, a search box or the open screen. In the message box,
