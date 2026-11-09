@@ -1,0 +1,150 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Bluetooth, to find people nearby and carry chat. Android 12 and
+         later ask for these three by name. The app never works out where
+         the phone is from what it finds, and says so to Android. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Android 10 and 11 file Bluetooth scanning under Location, and
+         Android 10 to 12 file Wi-Fi Direct there, so the question the phone
+         asks says "location". Finding people nearby never reads where the
+         phone is. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <!-- Also for sending your location to someone: read once, only when you
+         choose Location in a chat and say yes to sending it, and never
+         kept or looked up online by the app. Asked for at that moment. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <!-- To go on finding people nearby while the app is not on screen. -->
+    <!-- For voice messages. Asked for when the user first presses the
+         microphone button, and used only while they are recording. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- For calls: puts the phone in call mode, and moves the sound between
+         the earpiece and the loudspeaker. Granted without asking. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- For the link to devices on the same Wi-Fi or hotspot. Android
+         names the permission for any network connection "INTERNET".
+         DNet connects only to devices on the local network. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- Wi-Fi Direct: a small Wi-Fi network two devices make between
+         themselves for a big file, with no router or hotspot. Android 13
+         and later have a permission for exactly that, and the app tells
+         Android it never works out where the phone is from it. Android 10
+         to 12 file Wi-Fi Direct under Location (the line for it is with
+         the Bluetooth ones above, and Android 12 asks for approximate
+         location in the same breath). Asked for the first time a big file
+         is about to move. Wi-Fi Direct never reads where the phone is. -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="tiramisu" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-feature android:name="android.hardware.wifi.direct" android:required="false" />
+    <!-- For scanning another person's code. Asked for when the user
+         first opens the scanner. Nothing is photographed or kept. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- For tapping phones together to swap chat links. Phones without
+         NFC can still install the app; the option is not shown on them. -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <uses-feature android:name="android.hardware.nfc.hce" android:required="false" />
+    <!-- A LoRa radio on a USB cable (an OTG adapter). Phones without USB
+         host can still install the app and use a radio over Bluetooth or
+         Wi-Fi. Android asks the user before the app may use the device. -->
+    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <!-- For sharing the screen in a call, only after the user says yes to
+         Android's own question. A notice shows while it goes on. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <!-- Data stays on the phone. Nothing here is copied to a cloud backup or
+         to another device, and the wrapped key would be useless there. -->
+    <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:label="DNet"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".LinkService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+        <!-- The notice shown while the screen is shared in a call. -->
+        <service
+            android:name=".ScreenShareService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+        <!-- Answers a phone tapped against this one with the user's chat
+             link, only while the tap screen is open. -->
+        <service
+            android:name=".NfcLinkService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NFC_SERVICE">
+            <intent-filter>
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.cardemulation.host_apdu_service"
+                android:resource="@xml/nfc_link_aid" />
+        </service>
+        <!-- Lets the phone's camera app write a photo the user takes to
+             send into the app's cache, and nowhere else. See
+             PhotoCamera.kt. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.photos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/photo_paths" />
+        </provider>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
