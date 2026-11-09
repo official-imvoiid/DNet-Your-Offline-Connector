@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The one id NfcLinkService answers to: F0 then "DNETLK". It only ever
+     hands out the link the user is offering on the tap screen. -->
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/nfc_link_description"
+    android:requireDeviceUnlock="true">
+    <aid-group
+        android:category="other"
+        android:description="@string/nfc_link_description">
+        <aid-filter android:name="F0444E45544C4B" />
+    </aid-group>
+</host-apdu-service>
