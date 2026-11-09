@@ -1,0 +1,32 @@
+# The app, its Android and Windows folders have their own .gitignore files
+# (app/.gitignore, app/android/.gitignore, app/windows/.gitignore).
+
+# Release builds go on the GitHub Releases page, not into git.
+/dist/
+*.apk
+*.aab
+
+# Rust build output.
+/core/target/
+/radio_windows/target/
+
+# Signing keys and secrets. Never commit these.
+*.jks
+*.keystore
+key.properties
+.env
+.env.*
+
+# Manual device-test notes, kept locally.
+/testing/
+
+# Python.
+__pycache__/
+*.pyc
+
+# Editors and operating systems.
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
