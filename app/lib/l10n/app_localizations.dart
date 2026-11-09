@@ -7335,6 +7335,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Everyone in the call can see it. Open DNet to stop.'**
   String get screenShareNoticeText;
+
+  /// No description provided for @noticeChannelMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get noticeChannelMessages;
+
+  /// No description provided for @noticeChannelCalls.
+  ///
+  /// In en, this message translates to:
+  /// **'Calls'**
+  String get noticeChannelCalls;
+
+  /// No description provided for @noticeNewMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{New message} other{{count} new messages}}'**
+  String noticeNewMessages(int count);
+
+  /// No description provided for @noticeRequestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat request'**
+  String get noticeRequestTitle;
+
+  /// No description provided for @noticeRequestText.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to chat with you'**
+  String noticeRequestText(String name);
+
+  /// No description provided for @noticeRequestHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone wants to chat with you'**
+  String get noticeRequestHidden;
+
+  /// No description provided for @noticeMention.
+  ///
+  /// In en, this message translates to:
+  /// **'You were mentioned in #{channel}'**
+  String noticeMention(String channel);
+
+  /// No description provided for @noticeMentionHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You were mentioned in a space'**
+  String get noticeMentionHidden;
+
+  /// No description provided for @noticeCallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming call'**
+  String get noticeCallTitle;
+
+  /// No description provided for @noticeCallText.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is calling'**
+  String noticeCallText(String name);
+
+  /// No description provided for @noticeCallHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone is calling'**
+  String get noticeCallHidden;
+
+  /// No description provided for @trayOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open DNet'**
+  String get trayOpen;
+
+  /// No description provided for @trayQuit.
+  ///
+  /// In en, this message translates to:
+  /// **'Quit DNet'**
+  String get trayQuit;
+
+  /// No description provided for @trayStillRunningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'DNet is still running'**
+  String get trayStillRunningTitle;
+
+  /// No description provided for @trayStillRunningText.
+  ///
+  /// In en, this message translates to:
+  /// **'It keeps finding people and taking messages. Quit from the tray icon.'**
+  String get trayStillRunningText;
+
+  /// No description provided for @notificationsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications and background'**
+  String get notificationsHeading;
+
+  /// No description provided for @notificationsSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsSwitch;
+
+  /// No description provided for @notificationsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{device, select, pc{Messages, chat requests, mentions and calls while DNet\'s window is not in front.} other{Messages, chat requests, mentions and calls while DNet is not on screen.}}'**
+  String notificationsDetail(String device);
+
+  /// No description provided for @notifyTextSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Show what was said'**
+  String get notifyTextSwitch;
+
+  /// No description provided for @notifyTextDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: only who it is from. With an app lock, a notification never shows who or what.'**
+  String get notifyTextDetail;
+
+  /// No description provided for @backgroundSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep running in the background'**
+  String get backgroundSwitch;
+
+  /// No description provided for @backgroundDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{device, select, pc{Closing the window keeps DNet in the tray, finding people and taking messages. Quit from the tray icon.} other{DNet goes on finding people and taking messages after you leave it, with a notice that says so.}}'**
+  String backgroundDetail(String device);
+
+  /// No description provided for @notificationsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{device, select, pc{Windows has notifications for DNet turned off. Turn them on in Windows Settings.} other{Notifications for DNet are turned off. Turn them on in the phone\'s settings.}}'**
+  String notificationsBlocked(String device);
 }
 
 class _AppLocalizationsDelegate
