@@ -59,6 +59,11 @@
          host can still install the app and use a radio over Bluetooth or
          Wi-Fi. Android asks the user before the app may use the device. -->
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
+    <!-- For the phone's own notifications of messages, chat requests,
+         mentions and calls while DNet is not on screen. Android 13 and
+         later ask the user; the app asks once, and they can be switched
+         off in DNet or in Android's settings. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <!-- For sharing the screen in a call, only after the user says yes to
