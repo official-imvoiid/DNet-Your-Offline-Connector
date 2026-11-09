@@ -98,6 +98,15 @@ pub struct Device {
     pub app_lock: bool,
     pub auto_delete: bool,
     pub erase_on_wrong_passcode: bool,
+    /// The device's own notifications for messages, requests, mentions
+    /// and calls that come while the app is not in front.
+    pub notifications: bool,
+    /// Whether those notifications show what was said, or only who
+    /// it is from. Never with an app lock on.
+    pub notify_text: bool,
+    /// The app goes on finding people and taking messages once it is
+    /// put away: in the tray on a PC, with a notice on a phone.
+    pub background: bool,
 }
 
 impl Default for Device {
@@ -106,6 +115,9 @@ impl Default for Device {
             app_lock: true,
             auto_delete: false,
             erase_on_wrong_passcode: false,
+            notifications: true,
+            notify_text: true,
+            background: true,
         }
     }
 }
@@ -223,6 +235,9 @@ impl Settings {
             ("device", "app_lock") => &mut self.device.app_lock,
             ("device", "auto_delete") => &mut self.device.auto_delete,
             ("device", "erase_on_wrong_passcode") => &mut self.device.erase_on_wrong_passcode,
+            ("device", "notifications") => &mut self.device.notifications,
+            ("device", "notify_text") => &mut self.device.notify_text,
+            ("device", "background") => &mut self.device.background,
             ("links", "bluetooth") => &mut self.links.bluetooth,
             ("links", "wifi_nearby") => &mut self.links.wifi_nearby,
             ("links", "long_range") => &mut self.links.long_range,
