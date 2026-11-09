@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The one folder the phone's camera app may write a photo into, when the
+     user takes one to send: the app's own cache, beside files picked to
+     send. See PhotoCamera.kt. -->
+<paths>
+    <cache-path name="outgoing" path="outgoing/" />
+</paths>
