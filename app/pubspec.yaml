@@ -1,0 +1,79 @@
+name: dnet
+description: "Chat and send files with people nearby, with no internet."
+publish_to: 'none'
+
+version: 0.3.0+3
+
+environment:
+  sdk: ^3.13.5
+
+# Keep this list short. Every package here ships inside an app whose job is
+# to keep people's messages private, so each one has to be worth reviewing.
+dependencies:
+  ffi: ^2.2.0
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # The version is pinned by flutter_localizations.
+  image: ^4.12.0
+  intl: any
+  mobile_scanner: ^7.4.2
+  # Reads a QR code out of a picture from the PC's webcam, in Dart, on the
+  # device. The webcam itself is reached through the Windows radio library,
+  # which keeps its pictures in memory only. Android uses mobile_scanner.
+  zxing2: ^0.2.4
+  qr_flutter: ^4.1.0
+  # Plays videos sent in chats and channels, from files on the device.
+  # Pinned exactly. Android plays through the system's own player; Windows
+  # needs video_player_win, which uses the player Windows has built in.
+  video_player: 2.14.1
+  video_player_win: 3.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  # Builds lib/l10n/app_localizations*.dart from the .arb files.
+  generate: true
+
+  # The text field's selection menu uses Material icons.
+  uses-material-design: true
+
+  assets:
+    - assets/brand/logo.png
+    # The fonts' licences travel with them, and are listed in About.
+    - assets/fonts/Figtree-OFL.txt
+    - assets/fonts/JetBrainsMono-OFL.txt
+    - assets/fonts/NotoColorEmoji-OFL.txt
+    # Drawn for the app by tool/gen_stickers.py.
+    - assets/stickers/
+
+  # Bundled, never fetched: the app makes no network calls of its own.
+  # Both families are under the SIL Open Font License; see assets/fonts/.
+  fonts:
+    - family: Figtree
+      fonts:
+        - asset: assets/fonts/Figtree-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Figtree-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Figtree-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Figtree-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Figtree-ExtraBold.ttf
+          weight: 800
+    - family: JetBrains Mono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Medium.ttf
+          weight: 500
+    # Draws every emoji, flags too, the same on every device: Windows has
+    # no flags of its own, and a phone none newer than itself. Noto Color
+    # Emoji 2.057 (Unicode 18), the Windows-compatible build, from
+    # github.com/googlefonts/noto-emoji, under the SIL Open Font License.
+    - family: Noto Color Emoji
+      fonts:
+        - asset: assets/fonts/NotoColorEmoji.ttf
