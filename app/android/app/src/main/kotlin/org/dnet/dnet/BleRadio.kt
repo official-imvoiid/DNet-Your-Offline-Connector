@@ -49,8 +49,9 @@ import java.util.UUID
  * number that means "DNet is running here" and nothing about the user. The
  * device's name is left out on purpose.
  *
- * It runs while the app is open. Keeping it alive in the background is not
- * built yet.
+ * It is kept in [Background] for the whole run of the app, so it goes on
+ * after the screen is closed when the user lets the app run in the
+ * background, with [LinkService]'s notice saying so.
  *
  * Not yet verified on devices.
  */
