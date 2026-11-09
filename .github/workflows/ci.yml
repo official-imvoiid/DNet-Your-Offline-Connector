@@ -63,6 +63,10 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          # The default also asks for the old "tools" package, which the
+          # current command-line tools no longer have, so sdkmanager fails.
+          packages: platform-tools
       - name: Android SDK parts
         run: |
           sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358"
