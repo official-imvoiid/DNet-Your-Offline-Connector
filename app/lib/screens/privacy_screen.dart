@@ -63,6 +63,10 @@ class PrivacyScreen extends StatelessWidget {
           return;
         }
         state.setDevice(setting, on);
+      case DeviceSetting.notifications ||
+          DeviceSetting.notifyText ||
+          DeviceSetting.background:
+        state.setDevice(setting, on);
       case DeviceSetting.autoDelete:
         if (on) {
           final sure = await showAppConfirm(
@@ -160,6 +164,19 @@ class PrivacyScreen extends StatelessWidget {
       (DeviceSetting.autoDelete, l10n.autoDelete),
       (DeviceSetting.eraseOnWrongPasscode, l10n.eraseAfterWrongPasscodes),
     ]);
+    final notices = [
+      (
+        DeviceSetting.notifications,
+        l10n.notificationsSwitch,
+        l10n.notificationsDetail(context.deviceKind),
+      ),
+      (DeviceSetting.notifyText, l10n.notifyTextSwitch, l10n.notifyTextDetail),
+      (
+        DeviceSetting.background,
+        l10n.backgroundSwitch,
+        l10n.backgroundDetail(context.deviceKind),
+      ),
+    ].where((entry) => state.works(entry.$1)).toList();
     // A screenshot switch only where this device can keep the app out of
     // pictures of the screen. Elsewhere it would promise what it cannot do.
     final screenshots =
@@ -290,6 +307,15 @@ class PrivacyScreen extends StatelessWidget {
                       state.setSharing(SharingSetting.screenshots, on),
                 ),
             ],
+            if (notices.isNotEmpty) heading(l10n.notificationsHeading),
+            for (final (index, (setting, label, detail)) in notices.indexed)
+              _SwitchRow(
+                label: label,
+                detail: detail,
+                value: state.device(setting),
+                divider: index < notices.length - 1,
+                onChanged: (on) => _changeDevice(context, setting, on),
+              ),
             const SizedBox(height: 10),
             AppCard(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
