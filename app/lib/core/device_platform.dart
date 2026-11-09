@@ -17,6 +17,7 @@ import '../radio/radio.dart';
 import '../data/place.dart';
 import 'core_bridge.dart';
 import 'device_location.dart';
+import 'device_notices.dart';
 import 'device_voice.dart';
 import 'voice.dart';
 
@@ -205,6 +206,12 @@ abstract final class DevicePlatform {
     free: 'dnet_radio_free',
   );
   static CoreBridge? _library;
+
+  /// The device's own notifications, and whether the app goes on in the
+  /// background once put away. Android and Windows; nothing elsewhere.
+  static DeviceNotices notices() => Platform.isAndroid || Platform.isWindows
+      ? ChannelNotices()
+      : const NoNotices();
 
   /// The radio that finds people nearby: Bluetooth on both platforms. A
   /// device with none gets a radio that never finds anyone, and the Nearby
