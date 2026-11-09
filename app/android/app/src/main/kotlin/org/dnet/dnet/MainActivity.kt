@@ -3,10 +3,12 @@ package org.dnet.dnet
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.view.WindowManager
@@ -26,6 +28,7 @@ class MainActivity : FlutterActivity() {
         const val ASK_LOCATION = 4106
         const val ASK_CALL_MICROPHONE = 4107
         const val ASK_CALL_CAMERA = 4108
+        const val ASK_NOTIFICATIONS = 4109
     }
 
     private var direct: WifiDirect? = null
@@ -61,18 +64,26 @@ class MainActivity : FlutterActivity() {
     /** True once the user has been asked about location and said no. */
     private var refusedLocation = false
 
-    private var radio: BleRadio? = null
-    private var radioEvents: EventChannel.EventSink? = null
+    // Kept for the whole run of the app, not per screen: see Background.
+    private var radio: BleRadio? by Background::radio
+    private var radioEvents: EventChannel.EventSink? by Background::radioEvents
 
     /** What the background notice says. Given by the app, in its own words. */
-    private var noticeTitle = ""
-    private var noticeText = ""
+    private var noticeTitle: String by Background::noticeTitle
+    private var noticeText: String by Background::noticeText
 
     /** The Dart call waiting for the user to answer a system question. */
     private var asking: MethodChannel.Result? = null
 
     /** True once the user has been asked for the permissions and said no. */
     private var refusedOnce = false
+
+    /** The Dart call waiting for the user to allow notifications. */
+    private var noticesAfterAsking: MethodChannel.Result? = null
+
+    // One engine for the whole run of the app, not one per screen, so the
+    // app goes on when its screen closes if the user lets it.
+    override fun provideFlutterEngine(context: Context): FlutterEngine = Background.engine(context)
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -341,19 +352,21 @@ class MainActivity : FlutterActivity() {
                 }
             },
         )
-        val radio = BleRadio(applicationContext) { event ->
+        val app = applicationContext
+        val radio = Background.radio ?: BleRadio(app) { event ->
             // While the radio is working, a notice keeps Android from
             // shutting the app down when it is not on screen.
             if (event["t"] == "state") {
                 if (event["state"] == "on") {
-                    LinkService.start(this, noticeTitle, noticeText)
+                    LinkService.start(app, Background.noticeTitle, Background.noticeText)
                 } else {
-                    LinkService.stop(this)
+                    LinkService.stop(app)
                 }
             }
-            radioEvents?.success(event)
+            Background.radioEvents?.success(event)
         }
         this.radio = radio
+        setUpNotices(flutterEngine)
         setUpRadioLink(messenger)
         MethodChannel(messenger, "dnet/radio").setMethodCallHandler { call, result ->
             try {
@@ -368,7 +381,7 @@ class MainActivity : FlutterActivity() {
                     "stop" -> {
                         radio.stop()
                         hearLocalNetwork(false)
-                        LinkService.stop(this)
+                        LinkService.stop(applicationContext)
                         result.success(null)
                     }
                     "send" -> {
@@ -393,9 +406,9 @@ class MainActivity : FlutterActivity() {
      * (lib/radio/lora/byte_link.dart) opens one link at a time and only
      * moves bytes through it; what they mean is Dart's business.
      */
-    private var radioSerial: RadioSerial? = null
-    private var radioBle: RadioBle? = null
-    private var radioLinkEvents: EventChannel.EventSink? = null
+    private var radioSerial: RadioSerial? by Background::radioSerial
+    private var radioBle: RadioBle? by Background::radioBle
+    private var radioLinkEvents: EventChannel.EventSink? by Background::radioLinkEvents
 
     private fun setUpRadioLink(messenger: io.flutter.plugin.common.BinaryMessenger) {
         // Both must match the names in lib/radio/lora/byte_link.dart.
@@ -464,6 +477,100 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    /** The phone's own notifications; see Notices and lib/data/notices.dart. */
+    private fun setUpNotices(engine: FlutterEngine) {
+        val notices = Notices(applicationContext)
+        // Must match the channel in lib/core/device_notices.dart.
+        val channel = MethodChannel(engine.dartExecutor.binaryMessenger, "dnet/notices")
+        Background.noticeChannel = channel
+        channel.setMethodCallHandler { call, result ->
+            try {
+                when (call.method) {
+                    "allowed" -> result.success(notices.allowed())
+                    "ask" -> askNotifications(notices, result)
+                    "show" -> {
+                        notices.show(
+                            call.argument<String>("key") ?: "",
+                            call.argument<String>("kind") ?: "",
+                            call.argument<String>("title") ?: "",
+                            call.argument<String>("text") ?: "",
+                        )
+                        result.success(null)
+                    }
+                    "cancel" -> {
+                        notices.cancel(call.argument<String>("key") ?: "")
+                        result.success(null)
+                    }
+                    "cancelAll" -> {
+                        notices.cancelAll()
+                        result.success(null)
+                    }
+                    "keepRunning" -> {
+                        Background.keepRunning = call.argument<Boolean>("on") == true
+                        result.success(null)
+                    }
+                    "words" -> {
+                        call.argument<String>("messages")?.let { Notices.messagesName = it }
+                        call.argument<String>("calls")?.let { Notices.callsName = it }
+                        result.success(null)
+                    }
+                    "launchKey" -> {
+                        result.success(Background.launchKey)
+                        Background.launchKey = null
+                    }
+                    else -> result.notImplemented()
+                }
+            } catch (e: Exception) {
+                result.error("notices", e.message, null)
+            }
+        }
+        takeNotice(intent, running = engine.dartExecutor.isExecutingDart)
+    }
+
+    /**
+     * Android 13 and later ask the user before an app may show
+     * notifications. Earlier versions allow them unless switched off.
+     */
+    private fun askNotifications(notices: Notices, result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT < 33 || notices.allowed() || noticesAfterAsking != null) {
+            result.success(notices.allowed())
+            return
+        }
+        noticesAfterAsking = result
+        requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), ASK_NOTIFICATIONS)
+    }
+
+    /**
+     * If [intent] came from a tapped notice, tells the app which: at once
+     * if it is running, or when it asks, if it is only starting.
+     */
+    private fun takeNotice(intent: Intent?, running: Boolean) {
+        val key = intent?.getStringExtra(Notices.EXTRA_KEY) ?: return
+        intent.removeExtra(Notices.EXTRA_KEY)
+        val channel = Background.noticeChannel
+        if (running && channel != null) {
+            channel.invokeMethod("opened", key)
+        } else {
+            Background.launchKey = key
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        takeNotice(intent, running = true)
+    }
+
+    // Back from the first screen puts the app away rather than closing
+    // it, while the user lets it go on in the background.
+    override fun popSystemNavigator(): Boolean {
+        if (Background.keepRunning) {
+            moveTaskToBack(true)
+            return true
+        }
+        return super.popSystemNavigator()
+    }
+
     private fun serial(): RadioSerial = radioSerial ?: RadioSerial(applicationContext).also {
         it.onData = { bytes -> radioLinkEvents?.success(bytes) }
         it.onClosed = { why -> radioLinkEvents?.error("closed", why, null) }
@@ -516,7 +623,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private var networkLock: WifiManager.MulticastLock? = null
+    private var networkLock: WifiManager.MulticastLock? by Background::networkLock
 
     /**
      * Android drops "who is there?" packets from the local network unless
@@ -698,6 +805,12 @@ class MainActivity : FlutterActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == ASK_NOTIFICATIONS) {
+            val result = noticesAfterAsking ?: return
+            noticesAfterAsking = null
+            result.success(Notices(applicationContext).allowed())
+            return
+        }
         if (requestCode == ASK_CALL_CAMERA) {
             val result = cameraAfterAsking ?: return
             cameraAfterAsking = null
@@ -779,14 +892,20 @@ class MainActivity : FlutterActivity() {
     override fun onDestroy() {
         nfc?.stop()
         nfc = null
-        radioSerial?.dispose()
-        radioSerial = null
-        radioBle?.dispose()
-        radioBle = null
-        LinkService.stop(this)
-        hearLocalNetwork(false)
-        radio?.stop()
-        radio = null
+        // The radios, the long-range link and the notice go on when the
+        // user lets the app run in the background; otherwise they stop
+        // with the screen, as they always did.
+        val stays = Background.keepRunning
+        if (!stays) {
+            radioSerial?.dispose()
+            radioSerial = null
+            radioBle?.dispose()
+            radioBle = null
+            LinkService.stop(applicationContext)
+            hearLocalNetwork(false)
+            radio?.stop()
+            radio = null
+        }
         // A group is not left standing once the app is gone.
         direct?.leave {}
         direct = null
@@ -798,6 +917,11 @@ class MainActivity : FlutterActivity() {
         callCamera = null
         // Nothing goes on being shared once the app is closed.
         ScreenShare.stop(this)
+        noticesAfterAsking?.success(false)
+        noticesAfterAsking = null
         super.onDestroy()
+        // Closed for good: the engine goes too, and the next start is
+        // a fresh one.
+        if (!stays && isFinishing) Background.release()
     }
 }
