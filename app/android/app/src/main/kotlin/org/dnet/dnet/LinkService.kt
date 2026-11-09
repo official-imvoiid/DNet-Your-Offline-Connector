@@ -15,9 +15,9 @@ import android.os.IBinder
  *
  * Android stops apps it cannot see. A service with a visible notice is the
  * way an app says "I am still doing something the user asked for". This one
- * does nothing itself: the radio lives in the activity. It runs only while
- * the radio is working, and stops when the radio stops or the app is
- * closed.
+ * does nothing itself: the radio and the app live in [Background]. It runs
+ * while the radio is working, and goes on after the screen is closed when
+ * the user lets the app run in the background.
  *
  * Not yet verified on devices.
  */
@@ -59,7 +59,7 @@ class LinkService : Service() {
         val notice = Notification.Builder(this, CHANNEL)
             .setContentTitle(title)
             .setContentText(text)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notice)
             .setContentIntent(open)
             .setOngoing(true)
             .build()
