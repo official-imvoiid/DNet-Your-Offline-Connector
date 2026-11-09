@@ -1339,7 +1339,19 @@ enum SharingSetting {
 enum DeviceSetting {
   appLock('app_lock'),
   autoDelete('auto_delete'),
-  eraseOnWrongPasscode('erase_on_wrong_passcode');
+  eraseOnWrongPasscode('erase_on_wrong_passcode'),
+
+  /// The device's own notifications, while the app is not in front.
+  /// Starts on.
+  notifications('notifications'),
+
+  /// Notifications show what was said, not only who it is from. Starts
+  /// on; never with an app lock on.
+  notifyText('notify_text'),
+
+  /// The app goes on in the background once put away: in the tray on a
+  /// PC, with a notice on a phone. Starts on.
+  background('background');
 
   const DeviceSetting(this.coreName);
   final String coreName;
